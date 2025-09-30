@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ruteaflutter/features/auth/widgets/login_form.dart';
+import 'package:ruteaflutter/theme.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
@@ -8,6 +9,7 @@ class LoginPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppTheme.primaryColor,
       resizeToAvoidBottomInset: true,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -37,8 +39,7 @@ class LoginPage extends StatelessWidget {
                     decoration: const BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(90),
-                        topRight: Radius.circular(90),
+                        topLeft: Radius.circular(100),
                       ),
                     ),
                     child: Column(

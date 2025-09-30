@@ -4,14 +4,14 @@ import 'package:google_fonts/google_fonts.dart';
 class AppTheme {
   // Colores personalizados extraídos de las imágenes
   static const Color primaryColor = Color(
-    0xFFB99BE5,
+    0xFF3B9DC2,
   ); // Lavanda claro (Botones)
   static const Color colorSec = Color(0xFFFBFBFB); // Blanco muy claro (Fondo)
   static const Color secondaryColor = Color(
-    0xFFBA9CE5,
+    0xFF0D4556,
   ); // Tono de lavanda para otros elementos
   static const Color accentColor = Color(
-    0xFFAD8ED9,
+    0xFFB99BE5,
   ); // Variación de lavanda claro
 
   // Tema claro (light theme) con colorScheme

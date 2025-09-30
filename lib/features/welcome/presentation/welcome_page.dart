@@ -9,7 +9,7 @@ class WelcomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.accentColor,
+      backgroundColor: AppTheme.primaryColor,
       body: Center(
         child: FractionallySizedBox(
           widthFactor: 0.8,
