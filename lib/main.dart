@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:ruteaflutter/features/auth/presentation/login_page.dart';
 import 'package:ruteaflutter/features/welcome/presentation/welcome_page.dart';
 import 'package:ruteaflutter/screens/splash_screen.dart';
 import 'theme.dart';
 
-void main() {
+void main() async {
+  await dotenv.load();
   runApp(const MyApp());
 }
 
