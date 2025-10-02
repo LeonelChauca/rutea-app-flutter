@@ -54,7 +54,7 @@ class WelcomePage extends StatelessWidget {
                     width: 200,
                     child: FilledButton(
                       onPressed: () {
-                        Navigator.pushNamed(context, '/login');
+                        Navigator.pushNamed(context, '/register');
                       },
                       child: Text(
                         'Crear Cuenta',

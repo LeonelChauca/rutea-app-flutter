@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:ruteaflutter/features/auth/widgets/register_form.dart';
 import 'package:ruteaflutter/models/login_request.dart';
 import 'package:ruteaflutter/theme.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -17,6 +18,7 @@ class _LoginFormState extends State<LoginForm> {
   final GlobalKey<FormBuilderState> _formKey = GlobalKey<FormBuilderState>();
 
   bool _isLoading = false;
+  // ignore: unused_field
   String _errorMessage = '';
 
   Future<void> _login(String email, String password) async {
@@ -28,7 +30,9 @@ class _LoginFormState extends State<LoginForm> {
     try {
       final authService = AuthService();
       await authService.login(LoginRequest(email: email, password: password));
+      print('Login successful');
     } catch (e) {
+      print('Login failed with error: $e');
       setState(() {
         _errorMessage =
             'Error al iniciar sesión. Por favor, inténtalo de nuevo.';
@@ -80,7 +84,6 @@ class _LoginFormState extends State<LoginForm> {
                 onPressed: () async {
                   // Acción al presionar el botón de iniciar sesión
                   if (_formKey.currentState!.saveAndValidate() && !_isLoading) {
-                    print(_formKey.currentState!.value.entries.toList());
                     await _login(
                       _formKey.currentState!.value['email'],
                       _formKey.currentState!.value['password'],

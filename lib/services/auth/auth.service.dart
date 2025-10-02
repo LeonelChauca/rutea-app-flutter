@@ -4,8 +4,8 @@ import '../api.dart';
 
 class AuthService {
   Future<void> login(LoginRequest loginReq) async {
-    final res = await Api.dio.post('/login', data: loginReq.toJson());
-    print(res);
+    final res = await Api.dio.post('/auth/login', data: loginReq.toJson());
+    print('Login response: ${res}');
     return res.data;
   }
 }
