@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:ruteaflutter/core/screens/succes_screen.dart';
 import 'package:ruteaflutter/features/auth/presentation/login_page.dart';
 import 'package:ruteaflutter/features/auth/presentation/register_page.dart';
 import 'package:ruteaflutter/features/welcome/presentation/welcome_page.dart';
@@ -28,14 +29,23 @@ class MyApp extends StatelessWidget {
       localizationsDelegates: [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations
-            .delegate, // Si estás usando Cupertino (opcional)
+        GlobalCupertinoLocalizations.delegate,
       ],
       routes: {
         '/': (context) => const SplashScreen(),
         '/login': (context) => const LoginPage(),
         '/welcome': (context) => const WelcomePage(),
         '/register': (context) => const RegisterPage(),
+        '/success': (context) {
+          final args =
+              ModalRoute.of(context)!.settings.arguments as Map<String, String>;
+          return SuccessScreen(
+            title: args['title'] ?? 'Operación exitosa',
+            description:
+                args['description'] ??
+                'La operación se completó correctamente.',
+          );
+        },
       },
       theme: AppTheme.lightTheme,
     );
