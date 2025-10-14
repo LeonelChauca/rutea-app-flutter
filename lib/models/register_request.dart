@@ -1,5 +1,4 @@
 // ignore_for_file: non_constant_identifier_names
-
 class RegisterRequest {
   final String email;
   final String password;

@@ -1,19 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:ruteaflutter/core/providers/providers.dart';
 import 'package:ruteaflutter/features/auth/widgets/register/personal_data_form.dart';
 import 'package:ruteaflutter/features/auth/widgets/register/user_data_form.dart';
 import 'package:ruteaflutter/models/register_request.dart';
-import 'package:ruteaflutter/services/user/user.service.dart';
 import 'package:ruteaflutter/utils/snackbar_util.dart';
 
-class RegisterForm extends StatefulWidget {
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+class RegisterForm extends ConsumerStatefulWidget {
   const RegisterForm({super.key});
 
   @override
-  State<RegisterForm> createState() => _RegisterFormState();
+  ConsumerState<RegisterForm> createState() => _RegisterFormState();
 }
 
-class _RegisterFormState extends State<RegisterForm> {
+class _RegisterFormState extends ConsumerState<RegisterForm> {
   final GlobalKey<FormBuilderState> _personalDataFormKey =
       GlobalKey<FormBuilderState>();
   final GlobalKey<FormBuilderState> _userDataFormKey =
@@ -31,7 +33,7 @@ class _RegisterFormState extends State<RegisterForm> {
     });
 
     try {
-      final userService = UserService();
+      final userService = ref.read(userServiceProvider);
       await userService.register(
         RegisterRequest(
           email: _userDataFormKey.currentState?.fields['email']?.value,
@@ -45,7 +47,7 @@ class _RegisterFormState extends State<RegisterForm> {
               .currentState
               ?.fields['fecha_nacimiento']
               ?.value,
-          ci: '12345678',
+          ci: '12345678922',
           genero: _personalDataFormKey.currentState?.fields['genero']?.value,
         ),
       );

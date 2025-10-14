@@ -1,22 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
-import 'package:ruteaflutter/features/auth/widgets/register_form.dart';
+import 'package:ruteaflutter/core/providers/providers.dart';
+
 import 'package:ruteaflutter/models/login_request.dart';
 import 'package:ruteaflutter/theme.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../../services/auth/auth.service.dart';
 
-class LoginForm extends StatefulWidget {
+class LoginForm extends ConsumerStatefulWidget {
   const LoginForm({super.key});
 
   @override
-  State<LoginForm> createState() => _LoginFormState();
+  ConsumerState<LoginForm> createState() => _LoginFormState();
 }
 
-class _LoginFormState extends State<LoginForm> {
+class _LoginFormState extends ConsumerState<LoginForm> {
   final GlobalKey<FormBuilderState> _formKey = GlobalKey<FormBuilderState>();
-
   bool _isLoading = false;
   // ignore: unused_field
   String _errorMessage = '';
@@ -28,9 +28,12 @@ class _LoginFormState extends State<LoginForm> {
     });
 
     try {
-      final authService = AuthService();
+      final authService = ref.read(authServiceProvider);
       await authService.login(LoginRequest(email: email, password: password));
       print('Login successful');
+      if (mounted) {
+        Navigator.pushReplacementNamed(context, '/menu');
+      }
     } catch (e) {
       print('Login failed with error: $e');
       setState(() {
@@ -81,15 +84,17 @@ class _LoginFormState extends State<LoginForm> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () async {
-                  // Acción al presionar el botón de iniciar sesión
-                  if (_formKey.currentState!.saveAndValidate() && !_isLoading) {
-                    await _login(
-                      _formKey.currentState!.value['email'],
-                      _formKey.currentState!.value['password'],
-                    );
-                  }
-                },
+                onPressed: _isLoading
+                    ? null
+                    : () async {
+                        // Acción al presionar el botón de iniciar sesión
+                        if (_formKey.currentState!.saveAndValidate()) {
+                          await _login(
+                            _formKey.currentState!.value['email'],
+                            _formKey.currentState!.value['password'],
+                          );
+                        }
+                      },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.secondaryColor,
                   shape: RoundedRectangleBorder(

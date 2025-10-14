@@ -3,6 +3,8 @@ import 'package:ruteaflutter/models/register_request.dart';
 import 'package:ruteaflutter/services/api.dart';
 
 class UserService {
+  final Dio dio;
+  UserService(this.dio);
   Future<dynamic> register(RegisterRequest registerReq) async {
     try {
       final res = await Api.dio.post(

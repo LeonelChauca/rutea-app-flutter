@@ -3,17 +3,22 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:ruteaflutter/core/screens/succes_screen.dart';
 import 'package:ruteaflutter/features/auth/presentation/login_page.dart';
 import 'package:ruteaflutter/features/auth/presentation/register_page.dart';
+import 'package:ruteaflutter/features/map/presentation/map_presentation.dart';
 import 'package:ruteaflutter/features/welcome/presentation/welcome_page.dart';
 import 'package:ruteaflutter/screens/splash_screen.dart';
 import 'package:flutter_localizations/flutter_localizations.dart'; // Agrega este import
-
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'theme.dart';
+
 import 'package:intl/intl.dart';
+
+import 'features/menu/base_menu_navigator.dart';
 
 void main() async {
   await dotenv.load();
+
   Intl.defaultLocale = 'es_BO';
-  runApp(const MyApp());
+  runApp(const ProviderScope(child: MyApp()));
 }
 
 class MyApp extends StatelessWidget {
@@ -46,6 +51,8 @@ class MyApp extends StatelessWidget {
                 'La operación se completó correctamente.',
           );
         },
+        '/menu': (context) => const BaseMenuNavigator(),
+        '/map': (context) => const MapPresentation(),
       },
       theme: AppTheme.lightTheme,
     );
