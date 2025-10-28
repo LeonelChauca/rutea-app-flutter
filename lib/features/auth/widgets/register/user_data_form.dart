@@ -8,7 +8,8 @@ class UserDataForm extends StatefulWidget {
   final Future<void> Function() createUser;
   final bool isLoading; // ✅ Nuevo prop
 
-  UserDataForm({
+  const UserDataForm({
+    super.key,
     required this.formKey,
     required this.pageController,
     required this.createUser,

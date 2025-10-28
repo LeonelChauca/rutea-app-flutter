@@ -11,6 +11,7 @@ class AuthService {
   AuthService(this.dio, this.token);
   Future<void> login(LoginRequest loginReq) async {
     final res = await Api.dio.post('/auth/login', data: loginReq.toJson());
+
     final access = res.data['access_token'] as String;
     final refresh = res.data['refresh_token'] as String;
     await token.saveTokens(access, refresh);

@@ -27,20 +27,17 @@ class _BaseMenuNavigatorState extends State<BaseMenuNavigator> {
   }
 
   Future<void> _loadUser() async {
+    if (!mounted) return;
     try {
       final user = await UserStorage().getUser();
-      if (!mounted) return; // Verifica si el widget sigue montado
 
       setState(() {
-        // Intenta diferentes estructuras de datos
         _userName = user["persona"]?["nombres"] ?? user["name"] ?? 'Usuario';
         _userEmail = user["email"] ?? user["persona"]?["email"] ?? '';
         _isLoading = false;
       });
       _initializePages();
     } catch (e) {
-      if (!mounted) return; // Verifica si el widget sigue montado
-
       setState(() {
         _userName = 'Usuario';
         _userEmail = '';
@@ -54,14 +51,15 @@ class _BaseMenuNavigatorState extends State<BaseMenuNavigator> {
   void _initializePages() {
     _pages.clear();
     _pages.addAll([
-      const MapPresentation(), // 0 - Mapa/Planificador
-      _buildPlaceholderPage('Líneas de Transporte', Icons.list_alt), // 1
-      _buildPlaceholderPage('Tarifas', Icons.receipt_long), // 2
-      _buildPlaceholderPage('Lugares Recientes', Icons.location_on), // 3
-      _buildPlaceholderPage('Comentarios', Icons.chat_bubble_outline), // 4
-      _buildPlaceholderPage('Sobre Nosotros', Icons.info_outline), // 5
-      _buildPlaceholderPage('Redes Sociales', Icons.share), // 6
-      _buildPlaceholderPage('Configuraciones', Icons.settings), // 7
+      const MapPresentation(),
+      _buildPlaceholderPage('Líneas de Transporte', Icons.list_alt),
+      _buildPlaceholderPage('Tarifas', Icons.receipt_long),
+      _buildPlaceholderPage('Lugares Recientes', Icons.location_on),
+      _buildPlaceholderPage('Comentarios', Icons.chat_bubble_outline),
+      _buildPlaceholderPage('Gestion de Usuarios', Icons.info_outline),
+      _buildPlaceholderPage('Sobre Nosotros', Icons.info_outline),
+      _buildPlaceholderPage('Redes Sociales', Icons.share),
+      _buildPlaceholderPage('Configuraciones', Icons.settings),
     ]);
 
     _titles.clear();
@@ -71,6 +69,7 @@ class _BaseMenuNavigatorState extends State<BaseMenuNavigator> {
       'Tarifas',
       'Lugares Recientes',
       'Comentarios',
+      'Gestion de Usuarios',
       'Sobre Nosotros',
       'Redes Sociales',
       'Configuraciones',
@@ -103,7 +102,6 @@ class _BaseMenuNavigatorState extends State<BaseMenuNavigator> {
   }
 
   void _onMenuItemSelected(int index) {
-    // Verifica que el widget esté montado antes de actualizar
     if (!mounted) return;
 
     if (index != _selectedIndex && index >= 0 && index < _pages.length) {

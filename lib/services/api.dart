@@ -12,9 +12,10 @@ class Api {
   static void initializeInterceptors(TokenStorage storage) {
     if (_initialized) return;
 
-    final baseUrl = dotenv.env['API_URL'] ?? 'https://api.example.com';
+    final baseUrl = dotenv.env['API_URL'] ?? 'http://localhost:3000';
     dio = Dio(
       BaseOptions(
+        responseType: ResponseType.json,
         baseUrl: baseUrl,
         headers: {'Content-Type': 'application/json'},
         connectTimeout: const Duration(seconds: 15),

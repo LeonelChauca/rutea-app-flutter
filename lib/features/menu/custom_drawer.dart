@@ -77,7 +77,8 @@ class CustomDrawer extends StatelessWidget {
           _buildMenuItem(Icons.receipt_long, 'Tarifas', context, 2),
           _buildMenuItem(Icons.location_on, 'Lugares recientes', context, 3),
           _buildMenuItem(Icons.chat_bubble_outline, 'Comentarios', context, 4),
-          _buildMenuItem(Icons.info_outline, 'Sobre nosotros', context, 5),
+          _buildMenuItem(Icons.group, 'Gestion de Usuarios', context, 5),
+          _buildMenuItem(Icons.info_outline, 'Sobre nosotros', context, 6),
 
           const Divider(indent: 16, endIndent: 16),
 
@@ -101,7 +102,7 @@ class CustomDrawer extends StatelessWidget {
         icon,
         color: isSelected
             ? AppTheme.primaryColor
-            : AppTheme.primaryColor.withOpacity(0.6),
+            : AppTheme.primaryColor.withValues(alpha: 0.6),
       ),
       title: Text(
         title,
@@ -111,7 +112,7 @@ class CustomDrawer extends StatelessWidget {
         ),
       ),
       selected: isSelected,
-      selectedTileColor: const Color(0xFF1E90FF).withOpacity(0.1),
+      selectedTileColor: const Color(0xFF1E90FF).withValues(alpha: 0.1),
       onTap: () {
         Navigator.pop(context);
         onMenuItemSelected(index);

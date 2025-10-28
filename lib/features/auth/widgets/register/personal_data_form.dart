@@ -8,7 +8,8 @@ class PersonalDataForm extends StatefulWidget {
 
   final VoidCallback? createUser;
 
-  PersonalDataForm({
+  const PersonalDataForm({
+    super.key,
     required this.formKey,
     required this.pageController,
     this.createUser,
@@ -122,8 +123,7 @@ class _PersonalDataFormState extends State<PersonalDataForm>
             onPressed: () {
               if (widget.formKey.currentState?.saveAndValidate() ?? false) {
                 print(
-                  "Datos personales válidos: " +
-                      (widget.formKey.currentState?.value.toString() ?? ''),
+                  "Datos personales válidos: ${widget.formKey.currentState?.value.toString() ?? ''}",
                 );
                 widget.pageController.nextPage(
                   duration: const Duration(milliseconds: 300),

@@ -15,7 +15,6 @@ class UserStorage {
       await prefs.setString('persona_nombres', persona['nombres']);
       await prefs.setString('persona_p_apellido', persona['p_apellido']);
       await prefs.setString('persona_s_apellido', persona['s_apellido']);
-      await prefs.setString('persona_ci', persona['ci']);
       await prefs.setString('persona_genero', persona['genero']);
       await prefs.setString(
         'persona_fecha_nacimiento',
