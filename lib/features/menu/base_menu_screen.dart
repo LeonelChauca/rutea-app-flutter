@@ -3,20 +3,20 @@ import 'package:ruteaflutter/features/menu/custom_drawer.dart';
 
 class BaseMenuScreen extends StatelessWidget {
   final Widget body;
-  final Widget? topContent;
+  final Widget topContent;
   final int currentIndex;
-  final Function(int)? onMenuItemSelected;
+  final Function(int) onMenuItemSelected;
   final String userName;
   final String userEmail;
 
   const BaseMenuScreen({
     super.key,
     required this.body,
-    this.topContent,
-    this.currentIndex = 0,
-    this.onMenuItemSelected,
-    this.userName = '',
-    this.userEmail = '',
+    required this.topContent,
+    required this.currentIndex,
+    required this.onMenuItemSelected,
+    required this.userName,
+    required this.userEmail,
   });
 
   @override
@@ -35,7 +35,7 @@ class BaseMenuScreen extends StatelessWidget {
       ),
       drawer: CustomDrawer(
         currentIndex: currentIndex,
-        onMenuItemSelected: onMenuItemSelected!,
+        onMenuItemSelected: onMenuItemSelected,
         userName: userName,
         userEmail: userEmail,
       ),

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:ruteaflutter/core/storage/user_storage.dart';
+import 'package:ruteaflutter/features/create-lineas/registro_linea_wizard.dart';
 import 'package:ruteaflutter/features/map/presentation/map_presentation.dart';
 import 'package:ruteaflutter/features/menu/base_menu_screen.dart';
+import 'package:ruteaflutter/features/menu/drawer_menu_item.dart';
 
 class BaseMenuNavigator extends StatefulWidget {
   const BaseMenuNavigator({super.key});
@@ -16,9 +18,10 @@ class _BaseMenuNavigatorState extends State<BaseMenuNavigator> {
   String _userEmail = '';
   bool _isLoading = true;
 
-  // Define todas las páginas del SPA
   final List<Widget> _pages = [];
   final List<String> _titles = [];
+
+  final List<DrawerMenuItem> menuItems = drawerMenuItems;
 
   @override
   void initState() {
@@ -50,30 +53,26 @@ class _BaseMenuNavigatorState extends State<BaseMenuNavigator> {
 
   void _initializePages() {
     _pages.clear();
-    _pages.addAll([
-      const MapPresentation(),
-      _buildPlaceholderPage('Líneas de Transporte', Icons.list_alt),
-      _buildPlaceholderPage('Tarifas', Icons.receipt_long),
-      _buildPlaceholderPage('Lugares Recientes', Icons.location_on),
-      _buildPlaceholderPage('Comentarios', Icons.chat_bubble_outline),
-      _buildPlaceholderPage('Gestion de Usuarios', Icons.info_outline),
-      _buildPlaceholderPage('Sobre Nosotros', Icons.info_outline),
-      _buildPlaceholderPage('Redes Sociales', Icons.share),
-      _buildPlaceholderPage('Configuraciones', Icons.settings),
-    ]);
-
     _titles.clear();
-    _titles.addAll([
-      'Bienvenido ${_userName.toUpperCase()}!',
-      'Líneas de Transporte',
-      'Tarifas',
-      'Lugares Recientes',
-      'Comentarios',
-      'Gestion de Usuarios',
-      'Sobre Nosotros',
-      'Redes Sociales',
-      'Configuraciones',
-    ]);
+
+    for (final item in menuItems) {
+      _pages.add(_buildPageForIndex(item.index));
+      _titles.add(
+        item.index == 0 ? 'Bienvenido ${_userName.toUpperCase()}!' : item.title,
+      );
+    }
+  }
+
+  Widget _buildPageForIndex(int index) {
+    switch (index) {
+      case 0:
+        return const MapPresentation();
+      case 1:
+        return const RegistroLineaWizard();
+      default:
+        final item = menuItems.firstWhere((e) => e.index == index);
+        return _buildPlaceholderPage(item.title, item.icon);
+    }
   }
 
   Widget _buildPlaceholderPage(String title, IconData icon) {
@@ -118,11 +117,8 @@ class _BaseMenuNavigatorState extends State<BaseMenuNavigator> {
     }
 
     return BaseMenuScreen(
-      body: IndexedStack(
-        index: _selectedIndex,
-        children: _pages.isNotEmpty ? _pages : [const SizedBox()],
-      ),
-      topContent: Text(_titles.isNotEmpty ? _titles[_selectedIndex] : ''),
+      body: IndexedStack(index: _selectedIndex, children: _pages),
+      topContent: Text(_titles[_selectedIndex]),
       currentIndex: _selectedIndex,
       onMenuItemSelected: _onMenuItemSelected,
       userName: _userName,
