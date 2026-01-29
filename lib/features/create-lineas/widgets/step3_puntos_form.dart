@@ -228,6 +228,8 @@ class _Step3PuntosFormState extends State<Step3PuntosForm> {
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
+          backgroundColor: Colors.white, // <--- Agrega esto
+          surfaceTintColor: Colors.white,
           title: const Text('Agregar Punto'),
           content: SingleChildScrollView(
             child: Column(
@@ -252,7 +254,10 @@ class _Step3PuntosFormState extends State<Step3PuntosForm> {
                 const SizedBox(height: 8),
                 DropdownButtonFormField<String>(
                   value: _selectedTipo,
+                  dropdownColor: Colors.white,
                   decoration: InputDecoration(
+                    filled: true,
+                    fillColor: Colors.white,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),

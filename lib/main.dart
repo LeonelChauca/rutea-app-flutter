@@ -6,7 +6,7 @@ import 'package:ruteaflutter/features/auth/presentation/register_page.dart';
 import 'package:ruteaflutter/features/map/presentation/map_presentation.dart';
 import 'package:ruteaflutter/features/welcome/presentation/welcome_page.dart';
 import 'package:ruteaflutter/screens/splash_screen.dart';
-import 'package:flutter_localizations/flutter_localizations.dart'; // Agrega este import
+import 'package:flutter_localizations/flutter_localizations.dart'; 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'theme.dart';
 

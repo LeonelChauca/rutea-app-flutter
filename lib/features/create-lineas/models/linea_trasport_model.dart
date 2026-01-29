@@ -65,6 +65,8 @@ class PuntoRuta {
   String latitud;
   String longitud;
   bool estado;
+  double? distanciaAlSiguiente;
+  int? orden; // Agregar orden
   int idUserCreate;
   int idUserUpdate;
 
@@ -74,6 +76,8 @@ class PuntoRuta {
     required this.latitud,
     required this.longitud,
     this.estado = true,
+    this.distanciaAlSiguiente,
+    this.orden,
     this.idUserCreate = 0,
     this.idUserUpdate = 0,
   });
@@ -87,6 +91,9 @@ class PuntoRuta {
       'estado': estado,
       'id_user_create': idUserCreate,
       'id_user_update': idUserUpdate,
+      if (distanciaAlSiguiente != null)
+        'distancia_al_siguiente': distanciaAlSiguiente,
+      if (orden != null) 'orden': orden,
     };
   }
 }

@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:ruteaflutter/features/create-lineas/models/linea_trasport_model.dart';
 import 'package:ruteaflutter/features/create-lineas/widgets/step1_linea_form.dart';
 import 'package:ruteaflutter/features/create-lineas/widgets/step2_ruta_form.dart';
 import 'package:ruteaflutter/features/create-lineas/widgets/step3_puntos_form.dart';
 import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:ruteaflutter/services/api.dart';
+import 'package:ruteaflutter/services/rutas/rutas.service.dart';
 
 import 'package:ruteaflutter/features/create-lineas/widgets/step_indicator.dart';
 
@@ -20,6 +24,7 @@ class _RegistroLineaWizardState extends State<RegistroLineaWizard> {
   RutaTransporte? _rutaCreada;
   List<PuntoRuta> _puntosCreados = [];
   bool _isSubmitting = false;
+  late final RutasService _rutasService = RutasService(Api.dio);
 
   void _goToStep(int step) => setState(() => _currentStep = step);
 
@@ -44,6 +49,38 @@ class _RegistroLineaWizardState extends State<RegistroLineaWizard> {
     });
   }
 
+  /// Calcula la distancia real en km entre dos coordenadas usando OSRM.
+  /// Si falla la petición, hace fallback a Geolocator.distanceBetween.
+  Future<double> _calcularDistanciaEntrePuntos(
+    double lat1,
+    double lon1,
+    double lat2,
+    double lon2,
+  ) async {
+    try {
+      final coordinates = '$lon1,$lat1;$lon2,$lat2';
+      final url = Uri.parse(
+        'https://router.project-osrm.org/route/v1/driving/$coordinates?overview=false',
+      );
+
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body) as Map<String, dynamic>;
+        if (data['code'] == 'Ok' && (data['routes'] as List).isNotEmpty) {
+          final route = (data['routes'] as List).first as Map<String, dynamic>;
+          final distanceMeters = route['distance'] as num;
+          return distanceMeters / 1000.0;
+        }
+      }
+    } catch (_) {
+      // En caso de error, se usa el cálculo geodésico como respaldo.
+    }
+
+    final distanciaMetros = Geolocator.distanceBetween(lat1, lon1, lat2, lon2);
+    return distanciaMetros / 1000.0;
+  }
+
   Future<void> _submitData() async {
     if (_lineaCreada == null || _rutaCreada == null || _puntosCreados.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -55,92 +92,79 @@ class _RegistroLineaWizardState extends State<RegistroLineaWizard> {
       return;
     }
 
+    // 1. Crear la lista de puntos con distancias calculadas (en km)
+    List<PuntoRuta> puntosFinales = [];
+
+    for (int i = 0; i < _puntosCreados.length; i++) {
+      double? distancia;
+
+      // 2. Si hay un punto siguiente, calculamos la distancia
+      if (i < _puntosCreados.length - 1) {
+        final lat1 = double.tryParse(_puntosCreados[i].latitud);
+        final lon1 = double.tryParse(_puntosCreados[i].longitud);
+        final lat2 = double.tryParse(_puntosCreados[i + 1].latitud);
+        final lon2 = double.tryParse(_puntosCreados[i + 1].longitud);
+
+        if (lat1 != null && lon1 != null && lat2 != null && lon2 != null) {
+          final distanciaKm =
+              await _calcularDistanciaEntrePuntos(lat1, lon1, lat2, lon2);
+          distancia = double.parse(distanciaKm.toStringAsFixed(2));
+        } else {
+          distancia = null;
+        }
+      } else {
+        // Último punto: distancia al siguiente = 0.0 km
+        distancia = 0.0;
+      }
+
+      // 3. Crear el objeto PuntoRuta con los datos adicionales
+      final punto = PuntoRuta(
+        nombre: _puntosCreados[i].nombre,
+        tipo: _puntosCreados[i].tipo.toLowerCase(),
+        latitud: _puntosCreados[i].latitud,
+        longitud: _puntosCreados[i].longitud,
+        estado: true,
+        orden: i + 1,
+        distanciaAlSiguiente: distancia,
+        idUserCreate: 7,
+        idUserUpdate: 0,
+      );
+
+      puntosFinales.add(punto);
+    }
+
+    // 4. Crear el objeto completo
     final registroCompleto = RegistroLineaCompleto(
       linea: _lineaCreada!,
       ruta: _rutaCreada!,
-      puntos: _puntosCreados,
+      puntos: puntosFinales, // Usar la lista con distancias calculadas
     );
 
-    final jsonData = registroCompleto.toJson();
-    _showJsonPreview(jsonData, registroCompleto);
+    // 5. Enviar al backend
+    await _enviarAlBackend(registroCompleto);
   }
 
   Future<void> _enviarAlBackend(RegistroLineaCompleto registro) async {
     setState(() => _isSubmitting = true);
 
     try {
-      await Future.delayed(const Duration(seconds: 2));
-      final resultado = {
-        'success': true,
-        'message': 'Línea registrada exitosamente',
-      };
+      await _rutasService.registerRuta(registro);
 
       setState(() => _isSubmitting = false);
       if (!mounted) return;
 
-      if (resultado['success'] == true) {
-        Navigator.pop(context);
-        _showSuccessDialog();
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              (resultado['message'] ?? 'Error al registrar').toString(),
-            ),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
+      Navigator.pop(context);
+      _showSuccessDialog();
     } catch (e) {
       setState(() => _isSubmitting = false);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error: ${e.toString()}'),
+        const SnackBar(
+          content: Text('Ocurrió un error al registrar la ruta'),
           backgroundColor: Colors.red,
         ),
       );
     }
-  }
-
-  void _showJsonPreview(
-    Map<String, dynamic> jsonData,
-    RegistroLineaCompleto registro,
-  ) {
-    final jsonString = const JsonEncoder.withIndent('  ').convert(jsonData);
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Vista Previa del JSON'),
-        content: SingleChildScrollView(
-          child: Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade100,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: SelectableText(
-              jsonString,
-              style: const TextStyle(fontFamily: 'monospace', fontSize: 12),
-            ),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cerrar'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              _enviarAlBackend(registro);
-            },
-            child: const Text('Enviar al Backend'),
-          ),
-        ],
-      ),
-    );
   }
 
   void _showSuccessDialog() {
@@ -342,7 +366,7 @@ class _RegistroLineaWizardState extends State<RegistroLineaWizard> {
               const SizedBox(width: 16),
               Expanded(
                 child: ElevatedButton(
-                  onPressed: _submitData,
+                  onPressed: _isSubmitting ? null : _submitData,
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     backgroundColor: Colors.green,
@@ -351,14 +375,33 @@ class _RegistroLineaWizardState extends State<RegistroLineaWizard> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: const Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text('Finalizar Registro'),
-                      SizedBox(width: 8),
-                      Icon(Icons.send),
-                    ],
-                  ),
+                  child: _isSubmitting
+                      ? const Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor:
+                                    AlwaysStoppedAnimation<Color>(
+                                  Colors.white,
+                                ),
+                              ),
+                            ),
+                            SizedBox(width: 12),
+                            Text('Enviando...'),
+                          ],
+                        )
+                      : const Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text('Finalizar Registro'),
+                            SizedBox(width: 8),
+                            Icon(Icons.send),
+                          ],
+                        ),
                 ),
               ),
             ],
@@ -376,6 +419,7 @@ class _RegistroLineaWizardState extends State<RegistroLineaWizard> {
     required VoidCallback onEdit,
   }) {
     return Card(
+      color: Colors.white,
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
